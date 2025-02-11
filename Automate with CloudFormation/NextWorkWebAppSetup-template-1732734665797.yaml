@@ -1,0 +1,212 @@
+---
+Metadata:
+  AWSToolsMetrics:
+    IaC_Generator: "arn:aws:cloudformation:ap-south-1:011528261245:generatedTemplate/23304280-68ae-4247-96cb-39d9f0a18a38"
+Resources:
+  IAMManagedPolicy00policyserviceroleCodeBuildBasePolicynextworkwebbuildapsouth100b8fon:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::IAM::ManagedPolicy"
+    DeletionPolicy: "Delete"
+    DependsOn: "IAMRole00codebuildnextworkwebbuildservicerole00037Vl"
+    Properties:
+      ManagedPolicyName: "CodeBuildBasePolicy-nextwork-web-build-ap-south-1"
+      Path: "/service-role/"
+      Description: "Policy used in trust relationship with CodeBuild"
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource:
+          - "arn:aws:logs:ap-south-1:011528261245:log-group:/aws/codebuild/nextwork-web-build"
+          - "arn:aws:logs:ap-south-1:011528261245:log-group:/aws/codebuild/nextwork-web-build:*"
+          Action:
+          - "logs:CreateLogGroup"
+          - "logs:CreateLogStream"
+          - "logs:PutLogEvents"
+          Effect: "Allow"
+        - Resource:
+          - "arn:aws:s3:::codepipeline-ap-south-1-*"
+          Action:
+          - "s3:PutObject"
+          - "s3:GetObject"
+          - "s3:GetObjectVersion"
+          - "s3:GetBucketAcl"
+          - "s3:GetBucketLocation"
+          Effect: "Allow"
+        - Resource:
+          - "arn:aws:codecommit:ap-south-1:011528261245:nextwork-web-project"
+          Action:
+          - "codecommit:GitPull"
+          Effect: "Allow"
+        - Resource:
+          - "arn:aws:s3:::nextwork-build-artifacts-arjun"
+          - "arn:aws:s3:::nextwork-build-artifacts-arjun/*"
+          Action:
+          - "s3:PutObject"
+          - "s3:GetBucketAcl"
+          - "s3:GetBucketLocation"
+          Effect: "Allow"
+        - Resource:
+          - "arn:aws:codebuild:ap-south-1:011528261245:report-group/nextwork-web-build-*"
+          Action:
+          - "codebuild:CreateReportGroup"
+          - "codebuild:CreateReport"
+          - "codebuild:UpdateReport"
+          - "codebuild:BatchPutTestCases"
+          - "codebuild:BatchPutCodeCoverages"
+          Effect: "Allow"
+      Roles:
+      - "codebuild-nextwork-web-build-service-role"
+      Users: []
+  S3Bucket00nextworkbuildartifactsarjun00y2lMS:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: "Delete"
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: "nextwork-build-artifacts-arjun"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+  IAMManagedPolicy00policycodeartifactnextworkconsumerpolicy00JYCpF:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::IAM::ManagedPolicy"
+    DeletionPolicy: "Delete"
+    DependsOn: "IAMRole00codebuildnextworkwebbuildservicerole00037Vl"
+    Properties:
+      ManagedPolicyName: "codeartifact-nextwork-consumer-policy"
+      Path: "/"
+      Description: "Provides permissions to read from CodeArtifact."
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource: "*"
+          Action:
+          - "codeartifact:GetAuthorizationToken"
+          - "codeartifact:GetRepositoryEndpoint"
+          - "codeartifact:ReadFromRepository"
+          Effect: "Allow"
+        - Condition:
+            StringEquals:
+              sts:AWSServiceName: "codeartifact.amazonaws.com"
+          Resource: "*"
+          Action: "sts:GetServiceBearerToken"
+          Effect: "Allow"
+      Roles:
+      - "codebuild-nextwork-web-build-service-role"
+      Users: []
+  CodeArtifactRepository00repositorynextworkmavencentralstore001nnKp:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::CodeArtifact::Repository"
+    DeletionPolicy: "Delete"
+    Properties:
+      RepositoryName: "maven-central-store"
+      Description: "Provides Maven artifacts from Maven Central Repository."
+      ExternalConnections:
+      - "public:maven-central"
+      DomainName:
+        Fn::GetAtt:
+        - "CodeArtifactDomain00domainnextwork00W3alo"
+        - "Name"
+  CodeArtifactRepository00repositorynextworknextworkpackages000ORFL:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::CodeArtifact::Repository"
+    DeletionPolicy: "Delete"
+    Properties:
+      Upstreams:
+      - Fn::GetAtt:
+        - "CodeArtifactRepository00repositorynextworkmavencentralstore001nnKp"
+        - "Name"
+      RepositoryName: "nextwork-packages"
+      Description: "Packages for the NextWork web app."
+      DomainName:
+        Fn::GetAtt:
+        - "CodeArtifactDomain00domainnextwork00W3alo"
+        - "Name"
+  IAMManagedPolicy00policyserviceroleCodeBuildCloudWatchLogsPolicynextworkwebbuildapsouth100OCBFg:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::IAM::ManagedPolicy"
+    DeletionPolicy: "Delete"
+    DependsOn: "IAMRole00codebuildnextworkwebbuildservicerole00037Vl"
+    Properties:
+      ManagedPolicyName: "CodeBuildCloudWatchLogsPolicy-nextwork-web-build-ap-south-1"
+      Path: "/service-role/"
+      Description: "Policy used in trust relationship with CodeBuild"
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource:
+          - "arn:aws:logs:ap-south-1:011528261245:log-group:nextwork-build-logs"
+          - "arn:aws:logs:ap-south-1:011528261245:log-group:nextwork-build-logs:*"
+          Action:
+          - "logs:CreateLogGroup"
+          - "logs:CreateLogStream"
+          - "logs:PutLogEvents"
+          Effect: "Allow"
+      Roles:
+      - "codebuild-nextwork-web-build-service-role"
+      Users: []
+  IAMRole00codebuildnextworkwebbuildservicerole00037Vl:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::IAM::Role"
+    DeletionPolicy: "Delete"
+    Properties:
+      Path: "/service-role/"
+      MaxSessionDuration: 3600
+      RoleName: "codebuild-nextwork-web-build-service-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Action: "sts:AssumeRole"
+          Effect: "Allow"
+          Principal:
+            Service: "codebuild.amazonaws.com"
+  CodeArtifactDomain00domainnextwork00W3alo:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::CodeArtifact::Domain"
+    DeletionPolicy: "Delete"
+    Properties:
+      DomainName: "nextwork"
+  # CodeCommit Repository
+  CodeCommitRepository:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: nextwork-web-project
+      RepositoryDescription: A web application for the NextWork home page
+
+# CodeBuild Project
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: nextwork-web-build
+      Description: Build project for NextWork web application
+      Source:
+        Type: CODECOMMIT
+        Location: !GetAtt CodeCommitRepository.CloneUrlHttp
+        BuildSpec: buildspec.yml
+      Artifacts:
+        Type: S3
+        Name: nextwork-web-build.zip
+        Packaging: ZIP
+        Location: !Ref S3Bucket00nextworkbuildartifactsarjun00y2lMS
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:corretto8
+      ServiceRole: !GetAtt IAMRole00codebuildnextworkwebbuildservicerole00037Vl.Arn
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: nextwork-build-logs
+          Status: ENABLED
+          StreamName: webapp
